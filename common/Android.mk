@@ -28,14 +28,6 @@ LOCAL_CPPFLAGS := \
     -DANDROID_VERSION=800 \
     -DHDCP_LOG_TAG="\"HDCPD\"" \
 
-ifeq ($(ENABLE_DEBUG),1)
-    LOCAL_CPPFLAG += \
-        -DLOG_CONSOLE \
-        -DHDCP_USE_VERBOSE_LOGGING \
-        -DHDCP_USE_FUNCTION_LOGGING \
-        -DHDCP_USE_LINK_FUNCTION_LOGGING
-endif
-
 #WA
 LOCAL_CPPFLAGS += \
     -Wno-error
@@ -45,7 +37,7 @@ LOCAL_C_INCLUDES += \
     $(LOCAL_PATH)/../common \
 
 LOCAL_SHARED_LIBRARIES := \
-    libutils \
+    libcutils \
     liblog \
 
 LOCAL_SRC_FILES := \

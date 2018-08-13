@@ -10,13 +10,13 @@
 # treaty provisions. No part of the Material may be used, copied, reproduced,
 # modified, published, uploaded, posted, transmitted, distributed, or
 # disclosed in any way without Intel's prior express written permission.
-#
+# 
 # No license under any patent, copyright, trade secret or other intellectual
 # property right is granted to or conferred upon you by disclosure or
 # delivery of the Materials, either expressly, by implication, inducement,
 # estoppel or otherwise. Any license under such intellectual property rights
 # must be express and approved by Intel in writing.
-#
+# 
 #----------------------------------------------------------------------------
 
 LOCAL_PATH:= $(call my-dir)
@@ -27,17 +27,8 @@ LOCAL_CPPFLAGS += \
         -DANDROID_VERSION=800 \
 	-DHDCP_LOG_TAG="\"HDCP_SDK\"" \
 
-ifeq ($(ENABLE_DEBUG),1)
-    LOCAL_CPPFLAG += \
-        -DLOG_CONSOLE \
-        -DHDCP_USE_VERBOSE_LOGGING \
-        -DHDCP_USE_FUNCTION_LOGGING \
-        -DHDCP_USE_LINK_FUNCTION_LOGGING
-endif
-
 #WA
 LOCAL_CPPFLAGS += \
-    -Wno-unused-parameter \
     -Wno-error
 
 LOCAL_C_INCLUDES += \
@@ -51,6 +42,7 @@ LOCAL_SRC_FILES := \
     session.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
+    libcutils \
     libutils \
     liblog \
 

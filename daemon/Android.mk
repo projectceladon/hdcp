@@ -28,20 +28,12 @@ LOCAL_CPPFLAGS :=                                           \
     -DANDROID_VERSION=800 \
     -DHDCP_LOG_TAG="\"HDCPD\""
 
-ifeq ($(ENABLE_DEBUG),1)
-    LOCAL_CPPFLAG += \
-        -DLOG_CONSOLE \
-        -DHDCP_USE_VERBOSE_LOGGING \
-        -DHDCP_USE_FUNCTION_LOGGING \
-        -DHDCP_USE_LINK_FUNCTION_LOGGING
-endif
-
 #WA
 LOCAL_CPPFLAGS += \
-    -Wno-unused-parameter \
     -Wno-error
 
 LOCAL_SHARED_LIBRARIES := \
+    libcutils \
     libutils \
     libbinder \
     liblog \
@@ -58,8 +50,7 @@ LOCAL_SRC_FILES := \
     daemon.cpp \
     port.cpp \
     srm.cpp \
-    portmanager.cpp \
-    portmanager_android.cpp
+    portmanager.cpp 
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH) \
