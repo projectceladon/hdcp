@@ -45,8 +45,6 @@
 
 FILE *dmLog = nullptr;
 
-#define WA_ANDROID 1
-
 bool AlreadyRunning()
 {
     const std::string pidFile = "/var/run/hdcpd.pid";
@@ -213,11 +211,6 @@ int32_t main(void)
     int32_t ret = -1;
     struct passwd *mediaId = getpwnam("media");
 
-// FIXME: Actual fix will require some changes in the init script that changes
-// the hdcp daemon mode and ownership to media. Instead of changing to media
-// hdcd daemon now need to remain as a root service due to hdcp test tool that
-// check if the hdcp daemon is running as a root.
-#ifndef WA_ANDROID
     if (AlreadyRunning())
     {
         HDCP_ASSERTMESSAGE("hdcp aleady already running\n");
