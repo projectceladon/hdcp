@@ -58,6 +58,7 @@ LOCAL_SRC_FILES := \
     port.cpp \
     srm.cpp \
     portmanager.cpp \
+    portmanager_android.cpp
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH) \
