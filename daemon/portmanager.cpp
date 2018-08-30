@@ -47,6 +47,12 @@
 #include "xf86drm.h"
 #include "xf86drmMode.h"
 
+#ifdef ANDROID
+#include "portmanager_android.h"
+#else
+#define X11
+#endif
+
 #define UEVENT_MSG_SIZE             1024
 
 #define UEVENT_MSG_PART1            1
@@ -1152,16 +1158,27 @@ int32_t PortManager::SetPortProperty(
     {
         return ENOENT;
     }
-    
+
+#ifdef X11 //drmSetMaster can only be called by one user.
     if (drmSetMaster(m_DrmFd) < 0)
     {
         HDCP_ASSERTMESSAGE("Could not get drm master privilege");
         return EBUSY;
     }
-    
+#endif
     // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
     // then set the blob id by drmModeConnectorSetProperty
     int ret = EINVAL;
+#ifdef ANDROID
+    ret = setPortProperty_hwcservice(m_DrmFd,
+                               drmId,
+                               propId,
+                               size,
+                               *value,
+                               numRetry,
+                               drmObject);
+#else
+#ifdef X11
     uint32_t propValue;
     if (sizeof(uint8_t) != size)
     {
@@ -1200,7 +1217,8 @@ int32_t PortManager::SetPortProperty(
         HDCP_ASSERTMESSAGE("Could not drop drm master privilege");
         return EBUSY;
     }
-
+#endif //ifdef X11
+#endif
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 }
