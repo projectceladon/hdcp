@@ -1166,11 +1166,23 @@ int32_t PortManager::SetPortProperty(
     }
 
     if(!ias_env) {
+#ifdef X11
         if (drmSetMaster(m_DrmFd) < 0)
 	{
 	    HDCP_ASSERTMESSAGE("Could not get drm master privilege");
 	    return EBUSY;
 	}
+#endif
+#ifdef ANDROID
+	ret = setPortProperty_hwcservice(m_DrmFd,
+	drmId,
+	propId,
+	size,
+	*value,
+	numRetry,
+	drmObject);
+#else
+#ifdef X11
         // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
 	// then set the blob id by drmModeConnectorSetProperty
 	uint32_t propValue;
@@ -1219,7 +1231,8 @@ int32_t PortManager::SetPortProperty(
 	    return ERROR;
 	}
     }
-
+#endif //ifdef X11
+#endif
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 }

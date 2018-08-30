@@ -120,6 +120,8 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
         propValue = value;
     }
 
+    uint32_t portId = drmObject->GetPortId();
+
     android::ProcessState::initWithDriver("/dev/vndbinder");
 
     // Connect to HWC service
@@ -136,7 +138,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
     {
         ret = HwcService_Video_DisableHDCPSession_ForDisplay (
                 hwcs,
-                drmId);
+                portId);
     }
 
     //Enable CP and SendSRM
@@ -148,18 +150,19 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
            {
 	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable");
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
-                   hwcs, drmId, (EHwcsContentType)propValue);
+                   hwcs, portId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
            {
                //This is only for HDCP2.2
 	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type 1");
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
-                   hwcs, drmId, (EHwcsContentType)propValue);
+                   hwcs, portId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_SRM))
            {
-               HDCP_ASSERTMESSAGE("Set SRM for Display");
-               ret = HwcService_Video_SetHDCPSRM_ForDisplay(hwcs, drmId,
-                   (const int8_t *)&value, size);
+	       //TODO:This is not yet enable in hwcservice
+	       //this can be completed once hwcservice api is available
+	       HwcService_Disconnect(hwcs);
+               ret = EINVAL;
            } else
            {
                HwcService_Disconnect(hwcs);
