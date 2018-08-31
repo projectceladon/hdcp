@@ -44,7 +44,7 @@
 
 // Add compatibility layer for openssl 1.0 as suggested by openssl
 // https://wiki.openssl.org/index.php/OpenSSL_1.1.0_Changes#Compatibility_Layer
-#if OPENSSL_VERSION_NUMBER < 0x11100000
+#if OPENSSL_VERSION_NUMBER < 0x10100000
 int32_t DSA_set0_pqg(DSA *d, BIGNUM *p, BIGNUM *q, BIGNUM *g)
 {
     // If the fields p, q and g in d are nullptr, the corresponding input
