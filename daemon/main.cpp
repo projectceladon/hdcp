@@ -46,6 +46,8 @@
 
 FILE *dmLog = nullptr;
 
+#define WA_ANDROID 1
+
 bool AlreadyRunning()
 {
     const std::string pidFile = HDCP_PIDFILE;
@@ -214,6 +216,11 @@ int32_t main(void)
     char *ias_env = NULL;
     ias_env = getenv("XDG_RUNTIME_DIR");
 
+// FIXME: Actual fix will require some changes in the init script that changes
+// the hdcp daemon mode and ownership to media. Instead of changing to media
+// hdcd daemon now need to remain as a root service due to hdcp test tool that
+// check if the hdcp daemon is running as a root.
+#ifndef WA_ANDROID
     if (AlreadyRunning())
     {
         HDCP_ASSERTMESSAGE("hdcp aleady already running");
@@ -228,7 +235,6 @@ int32_t main(void)
         return 1;
     }
 
-#ifndef LOG_CONSOLE
     ret = daemon_init();
     if (ret < 0)
     {
@@ -260,13 +266,20 @@ int32_t main(void)
             HDCP_WARNMESSAGE("Failed to open log file. Err: %s", strerror(ret));
         }
 
+// FIXME: Actual fix will require some changes in the init script that changes
+// the hdcp daemon mode and ownership to media. Instead of changing to media
+// hdcd daemon now need to remain as a root service due to hdcp test tool that
+// check if the hdcp daemon is running as a root.
+#ifndef WA_ANDROID
         ret = chown(HDCP_LOG_FILE, mediaId->pw_uid, mediaId->pw_gid);
         if (ERROR == ret)
         {
             ret = errno;
             HDCP_WARNMESSAGE(
                     "Failed to change ownership to \"media\" for logfile!");
-        }
+       }
+#endif
+
     }
 #endif
 
