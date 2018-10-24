@@ -231,7 +231,6 @@ int32_t main(void)
                 strerror(errno));
         return 1;
     }
-#endif
 
     ret = daemon_init();
     if (ret < 0)
