@@ -38,6 +38,7 @@ endif
 
 #WA
 LOCAL_CPPFLAGS += \
+    -Wno-unused-parameter \
     -Wno-error
 
 LOCAL_SHARED_LIBRARIES := \
