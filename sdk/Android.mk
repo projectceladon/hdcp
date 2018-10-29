@@ -37,6 +37,7 @@ endif
 
 #WA
 LOCAL_CPPFLAGS += \
+    -Wno-unused-parameter \
     -Wno-error
 
 LOCAL_C_INCLUDES += \
