@@ -49,7 +49,7 @@ FILE *dmLog = nullptr;
 
 bool AlreadyRunning()
 {
-    const std::string pidFile = "/var/run/hdcpd.pid";
+    const std::string pidFile = HDCP_PIDFILE;
 
     int fd = open(pidFile.c_str(),
                 O_RDWR | O_CREAT,
@@ -57,7 +57,6 @@ bool AlreadyRunning()
     if (fd < 0)
     {
         HDCP_ASSERTMESSAGE("Could not open pid file : %s\n", pidFile.c_str());
-        close(fd);
         return true;
     }
 
@@ -97,7 +96,7 @@ int32_t daemon_init(void)
     {
         exit(SUCCESS);    // parent exit
     }
-    
+
     setsid();   // become session leader
 
     close(0);   // close stdin
