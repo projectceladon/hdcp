@@ -46,6 +46,7 @@
 
 #include "xf86drm.h"
 #include "xf86drmMode.h"
+#include "display_window_util.h"
 
 #ifdef ANDROID
 #include "portmanager_android.h"
@@ -1159,7 +1160,7 @@ int32_t PortManager::SetPortProperty(
         return ENOENT;
     }
 
-#ifdef X11 //drmSetMaster can only be called by one user.
+#if 0
     if (drmSetMaster(m_DrmFd) < 0)
     {
         HDCP_ASSERTMESSAGE("Could not get drm master privilege");
@@ -1217,8 +1218,10 @@ int32_t PortManager::SetPortProperty(
         HDCP_ASSERTMESSAGE("Could not drop drm master privilege");
         return EBUSY;
     }
-#endif //ifdef X11
+#else
+    util_set_content_protection(drmId, *value);
 #endif
+
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 }
