@@ -212,6 +212,8 @@ int32_t main(void)
 
     int32_t ret = -1;
     struct passwd *mediaId = getpwnam("media");
+     // This ias_env will be used to determine running with IAS or not
+    char *ias_env = getenv("XDG_RUNTIME_DIR");
 
 // FIXME: Actual fix will require some changes in the init script that changes
 // the hdcp daemon mode and ownership to media. Instead of changing to media
@@ -246,7 +248,10 @@ int32_t main(void)
         return 1;
     }
 
-    util_create_display(0);
+    if(ias_env)
+    {
+        util_create_display(0);
+    }
 
 #ifdef HDCP_LOG_FILE
     if (nullptr == dmLog)
@@ -284,8 +289,10 @@ int32_t main(void)
         fclose(dmLog);
         dmLog = nullptr;
     }
-
-    util_destroy_display(0);
+    if(ias_env)
+    {
+        util_destroy_display(0);
+    }
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
