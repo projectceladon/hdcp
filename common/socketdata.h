@@ -35,7 +35,7 @@
 
 // socket file used by SDK and daemon
 #ifdef ANDROID
-#define HDCP_DIR_BASE               "/data/hdcp/"
+#define HDCP_DIR_BASE               "/data/vendor/hdcp/"
 #define HDCP_DIR_BASE_PERMISSIONS   (S_IRWXU | S_IRWXG)
 #else
 #define HDCP_DIR_BASE               "/var/run/hdcp/"
