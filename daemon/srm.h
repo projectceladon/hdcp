@@ -35,7 +35,7 @@
 #include "port.h"
 
 #ifdef ANDROID
-#define SRM_STORAGE_FILENAME    "/data/hdcp/.hdcpsrmlist.bin"
+#define SRM_STORAGE_FILENAME    "/data/vendor/hdcp/.hdcpsrmlist.bin"
 #else
 #define SRM_STORAGE_FILENAME    "/var/run/.hdcpsrmlist.bin"
 #endif
