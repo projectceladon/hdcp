@@ -242,11 +242,12 @@ int32_t main(void)
     {
         return 1;
     }
-
+#ifndef ANDROID
     if(ias_env)
     {
         util_create_display(0);
     }
+#endif
 
 #ifdef HDCP_LOG_FILE
     if (nullptr == dmLog)
@@ -277,10 +278,12 @@ int32_t main(void)
         fclose(dmLog);
         dmLog = nullptr;
     }
+#ifndef ANDROID
     if(ias_env)
     {
         util_destroy_display(0);
     }
+#endif
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
