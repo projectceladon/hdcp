@@ -1233,6 +1233,7 @@ int32_t PortManager::SetPortProperty(
     }
 #endif //ifdef X11
 #endif
+}
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 }
