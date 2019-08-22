@@ -168,10 +168,15 @@ void HdcpDaemon::DispatchCommand(
 
         case HDCP_API_GETKSVLIST:
             HDCP_NORMALMESSAGE("daemon received 'GetKsvList' request");
-            // No need to send reponse after the function call,
+            // No need to send response after success function call,
             // since this function already done the communication itself.
+            // For unsuccess call, no response sent as break out,
+            // need do it after this function call.
             GetKsvList(data, appId);
-            sendResponse = false;
+            if (HDCP_STATUS_SUCCESSFUL == data.Status)
+            {
+                sendResponse = false;
+            }
             break;
 
         case HDCP_API_SENDSRMDATA:
@@ -309,12 +314,12 @@ void HdcpDaemon::EnumeratePorts(SocketData& data)
     int32_t sts = PortManagerEnumeratePorts(data.Ports, data.PortCount);
     if (SUCCESS != sts)
     {
-        HDCP_ASSERTMESSAGE("Enumerate failed\n");
+        HDCP_ASSERTMESSAGE("Enumerate failed");
         data.Status = HDCP_STATUS_ERROR_INTERNAL;
         return;
     }
 
-    HDCP_NORMALMESSAGE("Enumerate successfully\n");
+    HDCP_NORMALMESSAGE("Enumerate successfully");
     data.Status = HDCP_STATUS_SUCCESSFUL;
 
     HDCP_FUNCTION_EXIT(SUCCESS);
@@ -349,7 +354,7 @@ void HdcpDaemon::SetProtectionLevel(SocketData& data, uint32_t appId)
     }
     else
     {
-        HDCP_ASSERTMESSAGE("Invalid protection level!\n");
+        HDCP_ASSERTMESSAGE("Invalid protection level!");
         data.Status = HDCP_STATUS_ERROR_INVALID_PARAMETER;
         return;
     }
@@ -394,7 +399,7 @@ void HdcpDaemon::GetStatus(SocketData& data)
 
     int32_t sts = PortManagerGetStatus(
                         data.SinglePort.Id,
-                        &data.SinglePort.Status);
+                        &data.SinglePort.status);
     if (SUCCESS != sts)
     {
         switch (sts)

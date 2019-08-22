@@ -239,6 +239,8 @@ int32_t SrmTable::VerifySignature(
 
     if(DSA_SUCCESS != DSA_set0_pqg(dsa, p, q, g)) 
     {
+       DSA_free(dsa);
+       DSA_SIG_free(sig);
        BN_free(p);
        BN_free(q);
        BN_free(g);
@@ -260,6 +262,8 @@ int32_t SrmTable::VerifySignature(
 
     if(DSA_SUCCESS != DSA_set0_key(dsa, pub_key, nullptr)) 
     {
+        DSA_free(dsa);
+        DSA_SIG_free(sig);
         BN_free(pub_key);
         return EINVAL;
     }
@@ -269,6 +273,8 @@ int32_t SrmTable::VerifySignature(
 
     if(DSA_SUCCESS != DSA_SIG_set0(sig, r, s)) 
     {
+        DSA_free(dsa);
+        DSA_SIG_free(sig);
         BN_free(r);
         BN_free(s);
         return EINVAL;
@@ -336,12 +342,12 @@ VectorRevocationList::VectorRevocationList(
     for (int32_t i = 0; i < m_NumberOfDevices; i++)
     {
         HDCP_VERBOSEMESSAGE(
-                    "Number of devices: %d, checking number of device %d \n",
+                    "Number of devices: %d, checking number of device %d",
                     m_NumberOfDevices,
                     i);
 
         HDCP_VERBOSEMESSAGE(
-                    "RevokeList is %x, %x, %x, %x, %x \n",
+                    "RevokeList is %x, %x, %x, %x, %x",
                     m_KsvArray[i * KSV_SIZE + 4],
                     m_KsvArray[i * KSV_SIZE + 3],
                     m_KsvArray[i * KSV_SIZE + 2],
@@ -398,17 +404,17 @@ bool VectorRevocationList::ContainsKsv(const uint8_t ksv[KSV_SIZE])
             "ERROR: KSV_SIZE doesn't match the explicit expectation"
             "of 5 in the loop below!");
 
-    HDCP_VERBOSEMESSAGE("Start to check RevokeList with BKSV \n");
+    HDCP_VERBOSEMESSAGE("Start to check RevokeList with BKSV");
 
     for (uint32_t i = 0; i < m_NumberOfDevices; i++)
     {
         HDCP_VERBOSEMESSAGE(
-                    "Number of devices: %d, checking number of device %d \n",
+                    "Number of devices: %d, checking number of device %d",
                     m_NumberOfDevices,
                     i);
 
         HDCP_VERBOSEMESSAGE(
-                    "RevokeList is %x, %x, %x, %x, %x \n",
+                    "RevokeList is %x, %x, %x, %x, %x",
                     m_KsvArray[i * KSV_SIZE + 4],
                     m_KsvArray[i * KSV_SIZE + 3],
                     m_KsvArray[i * KSV_SIZE + 2],
@@ -416,7 +422,7 @@ bool VectorRevocationList::ContainsKsv(const uint8_t ksv[KSV_SIZE])
                     m_KsvArray[i * KSV_SIZE + 0]);
 
         HDCP_VERBOSEMESSAGE(
-                    "BKSV to check is %x, %x, %x, %x, %x \n",
+                    "BKSV to check is %x, %x, %x, %x, %x",
                     ksv[0],
                     ksv[1],
                     ksv[2],

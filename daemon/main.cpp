@@ -42,6 +42,7 @@
 #include "portmanager.h"
 #include "socketdata.h"
 #include "daemon.h"
+#include "display_window_util.h"
 
 FILE *dmLog = nullptr;
 
@@ -49,15 +50,14 @@ FILE *dmLog = nullptr;
 
 bool AlreadyRunning()
 {
-    const std::string pidFile = "/var/run/hdcpd.pid";
+    const std::string pidFile = HDCP_PIDFILE;
 
     int fd = open(pidFile.c_str(),
                 O_RDWR | O_CREAT,
                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0)
     {
-        HDCP_ASSERTMESSAGE("Could not open pid file : %s\n", pidFile.c_str());
-        close(fd);
+        HDCP_ASSERTMESSAGE("Could not open pid file : %s", pidFile.c_str());
         return true;
     }
 
@@ -69,7 +69,7 @@ bool AlreadyRunning()
 
     if (fcntl(fd, F_SETLK, &fl) < 0)
     {
-        HDCP_ASSERTMESSAGE("Could not lock pid file\n");
+        HDCP_ASSERTMESSAGE("Could not lock pid file");
         close(fd);
         return true;
     }
@@ -77,7 +77,7 @@ bool AlreadyRunning()
     std::string pid = std::to_string(getpid());
     if (write(fd, pid.c_str(), pid.length()) < 0)
     {
-        HDCP_ASSERTMESSAGE("Could not write pid file\n");
+        HDCP_ASSERTMESSAGE("Could not write pid file");
         close(fd);
         return true;
     }
@@ -97,7 +97,7 @@ int32_t daemon_init(void)
     {
         exit(SUCCESS);    // parent exit
     }
-    
+
     setsid();   // become session leader
 
     close(0);   // close stdin
@@ -212,6 +212,20 @@ int32_t main(void)
 
     int32_t ret = -1;
     struct passwd *mediaId = getpwnam("media");
+     // This ias_env will be used to determine running with IAS or not
+    char *ias_env = NULL;
+    ias_env = getenv("XDG_RUNTIME_DIR");
+
+// FIXME: Actual fix will require some changes in the init script that changes
+// the hdcp daemon mode and ownership to media. Instead of changing to media
+// hdcd daemon now need to remain as a root service due to hdcp test tool that
+// check if the hdcp daemon is running as a root.
+#ifndef WA_ANDROID
+    if (AlreadyRunning())
+    {
+        HDCP_ASSERTMESSAGE("hdcp aleady already running");
+        return 1;
+    }
 
 // FIXME: Actual fix will require some changes in the init script that changes
 // the hdcp daemon mode and ownership to media. Instead of changing to media
@@ -245,6 +259,12 @@ int32_t main(void)
     {
         return 1;
     }
+#ifndef ANDROID
+    if(ias_env)
+    {
+        util_create_display(0);
+    }
+#endif
 
 #ifdef HDCP_LOG_FILE
     if (nullptr == dmLog)
@@ -282,6 +302,12 @@ int32_t main(void)
         fclose(dmLog);
         dmLog = nullptr;
     }
+#ifndef ANDROID
+    if(ias_env)
+    {
+        util_destroy_display(0);
+    }
+#endif
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
