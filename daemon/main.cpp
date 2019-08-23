@@ -227,17 +227,6 @@ int32_t main(void)
         return 1;
     }
 
-// FIXME: Actual fix will require some changes in the init script that changes
-// the hdcp daemon mode and ownership to media. Instead of changing to media
-// hdcd daemon now need to remain as a root service due to hdcp test tool that
-// check if the hdcp daemon is running as a root.
-#ifndef WA_ANDROID
-    if (AlreadyRunning())
-    {
-        HDCP_ASSERTMESSAGE("hdcp aleady already running\n");
-        return 1;
-    }
-
     if (nullptr == mediaId)
     {
         HDCP_ASSERTMESSAGE(
