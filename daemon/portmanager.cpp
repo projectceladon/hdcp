@@ -46,6 +46,7 @@
 
 #include "xf86drm.h"
 #include "xf86drmMode.h"
+#include "display_window_util.h"
 
 #ifdef ANDROID
 #include "portmanager_android.h"
@@ -662,7 +663,7 @@ int32_t PortManager::EnumeratePorts(
     for (uint32_t i = 0; i < NUM_PHYSICAL_PORTS_MAX; ++i)
     {
         portList[i].Id = 0;
-        portList[i].Status = PORT_STATUS_DISCONNECTED;
+        portList[i].status = PORT_STATUS_DISCONNECTED;
     }
 
     portCount = 0;
@@ -690,7 +691,7 @@ int32_t PortManager::EnumeratePorts(
         if (connector->connection == DRM_MODE_CONNECTED)
         {
             portList[portCount].Id = drmObject->GetPortId();
-            portList[portCount].Status = PORT_STATUS_CONNECTED;
+            portList[portCount].status = PORT_STATUS_CONNECTED;
             portCount++;
         }
 
@@ -1153,72 +1154,86 @@ int32_t PortManager::SetPortProperty(
 {
     HDCP_FUNCTION_ENTER;
 
+    // This ias_env  will be used to determine running with IAS or not
+    char *ias_env = NULL;
+    ias_env = getenv("XDG_RUNTIME_DIR");
+    int ret = EINVAL;
+    bool retval = false;
     DrmObject *drmObject = GetDrmObjectByDrmId(drmId);
     if (nullptr == drmObject)
     {
         return ENOENT;
     }
 
-#ifdef X11 //drmSetMaster can only be called by one user.
-    if (drmSetMaster(m_DrmFd) < 0)
-    {
-        HDCP_ASSERTMESSAGE("Could not get drm master privilege");
-        return EBUSY;
-    }
+    if(!ias_env) {
+#ifdef X11
+        if (drmSetMaster(m_DrmFd) < 0)
+	{
+	    HDCP_ASSERTMESSAGE("Could not get drm master privilege");
+	    return EBUSY;
+	}
 #endif
-    // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
-    // then set the blob id by drmModeConnectorSetProperty
-    int ret = EINVAL;
 #ifdef ANDROID
-    ret = setPortProperty_hwcservice(m_DrmFd,
-                               drmId,
-                               propId,
-                               size,
-                               *value,
-                               numRetry,
-                               drmObject);
+	ret = setPortProperty_hwcservice(m_DrmFd,
+	drmId,
+	propId,
+	size,
+	*value,
+	numRetry,
+	drmObject);
 #else
 #ifdef X11
-    uint32_t propValue;
-    if (sizeof(uint8_t) != size)
-    {
-        ret = drmModeCreatePropertyBlob(m_DrmFd, value, size, &propValue);
-        if (SUCCESS != ret)
+        // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
+	// then set the blob id by drmModeConnectorSetProperty
+	uint32_t propValue;
+	if (sizeof(uint8_t) != size)
+	{
+	    ret = drmModeCreatePropertyBlob(m_DrmFd, value, size, &propValue);
+	    if (SUCCESS != ret)
+	    {
+	        HDCP_ASSERTMESSAGE("Could not create blob");
+	        return EBUSY;
+	    }
+	}
+	else
+	{
+	    propValue = *value;
+	}
+        // Set property
+        for (uint32_t i = 0; i < numRetry; ++i)
         {
-            HDCP_ASSERTMESSAGE("Could not create blob");
-            return EBUSY;
-        }
+            ret = drmModeConnectorSetProperty(
+					m_DrmFd,
+					drmObject->GetDrmId(),
+					propId,
+					propValue);
+	    if (SUCCESS == ret)
+	        break;
+	}
+	if (SUCCESS != ret)
+	{
+	    HDCP_ASSERTMESSAGE("Could not set port property");
+	    return EBUSY;
+	}
+        //We must drop master privilege here
+        if (drmDropMaster(m_DrmFd) < 0)
+        {
+            HDCP_ASSERTMESSAGE("Could not drop drm master privilege");
+	    return EBUSY;
+	}
     }
     else
     {
-        propValue = *value;   
-    }
-
-    // Set property
-    for (uint32_t i = 0; i < numRetry; ++i)
-    {
-        ret = drmModeConnectorSetProperty(
-                                m_DrmFd,
-                                drmObject->GetDrmId(),
-                                propId,
-                                propValue);
-        if (SUCCESS == ret)
-            break;
-    }
-    if (SUCCESS != ret)
-    {
-        HDCP_ASSERTMESSAGE("Could not set port property");
-        return EBUSY;
-    }
-
-    //We must drop master privilege here
-    if (drmDropMaster(m_DrmFd) < 0)
-    {
-        HDCP_ASSERTMESSAGE("Could not drop drm master privilege");
-        return EBUSY;
+        retval = util_set_content_protection(drmId, *value);
+	if (true != retval)
+	{
+	    HDCP_ASSERTMESSAGE("Could not set content protection");
+	    return ERROR;
+	}
     }
 #endif //ifdef X11
 #endif
+}
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 }

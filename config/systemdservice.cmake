@@ -18,22 +18,30 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 2.8.12)
+include(FindPkgConfig)
 
-project(common CXX)
+pkg_check_modules(SYSTEMD "systemd")
 
-find_package(OpenSSL REQUIRED)
-find_package(Threads REQUIRED)
+if (SYSTEMD_FOUND AND "${SYSTEMD_SERVICES_INSTALL_DIR}" STREQUAL "")
+    execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE}
+        --variable=systemdsystemunitdir systemd
+        OUTPUT_VARIABLE SYSTEMD_SERVICES_INSTALL_DIR)
+    string(REGEX REPLACE "[ \t\n]+" "" SYSTEMD_SERVICES_INSTALL_DIR
+            "${SYSTEMD_SERVICES_INSTALL_DIR}")
+    configure_file(${CMAKE_SOURCE_DIR}/config/hdcpd.service.in
+            ${CMAKE_BINARY_DIR}/hdcpd.service
+            @ONLY)
+    install(FILES ${CMAKE_BINARY_DIR}/hdcpd.service DESTINATION
+            ${SYSTEMD_SERVICES_INSTALL_DIR} COMPONENT cp)
 
-get_filename_component(HDCP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
-include_directories(${HDCP_DIR}/sdk)
+elseif (NOT SYSTEMD_FOUND AND SYSTEMD_SERVICES_INSTALL_DIR)
+    message (FATAL_ERROR "Variable SYSTEMD_SERVICES_INSTALL_DIR is\
+        defined, but we can't find systemd using pkg-config")
+endif()
 
-add_library(${PROJECT_NAME}
-    STATIC
-    clientsock.cpp
-    gensock.cpp
-    servsock.cpp
-    socketdata.cpp)
-
-target_compile_options(${PROJECT_NAME} PRIVATE ${HDCP_CXX_FLAGS})
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${HDCP_LD_FLAGS})
+if (SYSTEMD_FOUND)
+    set(WITH_SYSTEMD "ON")
+    message(STATUS "systemd services install dir: ${SYSTEMD_SERVICES_INSTALL_DIR}")
+else()
+    set(WITH_SYSTEMD "OFF")
+endif (SYSTEMD_FOUND)
