@@ -22,19 +22,14 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(hdcpd CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/")
-
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-if ("${LIBDRM_INCLUDE_DIRS}" STREQUAL "")
-    Message(FATAL_ERROR "libdrm include directory is not specified")
-endif ()
+pkg_check_modules(LIBDRM REQUIRED libdrm)
 
 get_filename_component(HDCP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
 
 include_directories(${OPENSSL_INCLUDE_DIRS})
 include_directories(${LIBDRM_INCLUDE_DIRS})
-include_directories(${LIBDRM_MODE_INCLUDE_DIRS})
 include_directories(${HDCP_DIR}/common)
 include_directories(${HDCP_DIR}/sdk)
 include_directories(${HDCP_DIR}/daemon)
@@ -45,6 +40,7 @@ add_executable(${PROJECT_NAME}
     port.cpp
     srm.cpp
     portmanager.cpp
+    display_window_util_wl.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${HDCP_CXX_FLAGS})
