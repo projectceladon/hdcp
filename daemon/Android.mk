@@ -61,7 +61,6 @@ LOCAL_SHARED_LIBRARIES := \
     libcrypto \
     libdrm \
     libssl \
-    libEGL \
     libhwcservice
 
 LOCAL_STATIC_LIBRARIES := \
