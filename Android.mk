@@ -20,4 +20,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 # Recursively call sub-folder Android.mk
-include $(call all-subdir-makefiles)
+ifeq ($(ENABLE_HDCP_FOR_ANDROID), true)
+    include $(call all-subdir-makefiles)
+endif
