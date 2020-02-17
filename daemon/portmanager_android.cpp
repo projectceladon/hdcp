@@ -163,6 +163,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
            } else
            {
                HwcService_Disconnect(hwcs);
+               hwcs = NULL;
                ret = EINVAL;
            }
            if(SUCCESS == ret)
@@ -194,8 +195,9 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     if (SUCCESS != ret)
     {
+        HwcService_Disconnect(hwcs);
         HDCP_ASSERTMESSAGE("Failed to Enable HDCP");
-	HDCP_FUNCTION_EXIT(EBUSY);
+        HDCP_FUNCTION_EXIT(EBUSY);
         return EBUSY;
     }
 
