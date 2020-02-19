@@ -17,6 +17,8 @@
 #ifndef DISPLAY_WINDOW_UTIL_H
 #define DISPLAY_WINDOW_UTIL_H
 
+#ifndef ANDROID
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -46,5 +48,6 @@ bool                    util_set_content_protection(int crtc, int cp);
 }
 #endif /* __cplusplus */
 
+#endif /* ANDROID */
 
 #endif /* DISPLAY_WINDOW_UTIL_H */
