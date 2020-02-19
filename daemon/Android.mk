@@ -41,6 +41,14 @@ LOCAL_CPPFLAG += \
     -DHDCP_USE_LINK_FUNCTION_LOGGING
 endif
 
+ifeq ($(ENABLE_DEBUG),1)
+    LOCAL_CPPFLAG += \
+        -DLOG_CONSOLE \
+        -DHDCP_USE_VERBOSE_LOGGING \
+        -DHDCP_USE_FUNCTION_LOGGING \
+        -DHDCP_USE_LINK_FUNCTION_LOGGING
+endif
+
 #WA
 LOCAL_CPPFLAGS += \
     -Wno-unused-parameter \
@@ -53,7 +61,6 @@ LOCAL_SHARED_LIBRARIES := \
     libcrypto \
     libdrm \
     libssl \
-    libEGL \
     libhwcservice
 
 LOCAL_STATIC_LIBRARIES := \

@@ -54,6 +54,12 @@
 #define X11
 #endif
 
+#ifdef ANDROID
+#include "portmanager_android.h"
+#else
+#define X11
+#endif
+
 #define UEVENT_MSG_SIZE             1024
 
 #define UEVENT_MSG_PART1            1
