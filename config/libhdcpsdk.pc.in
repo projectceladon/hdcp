@@ -1,0 +1,8 @@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+
+Name: @CMAKE_PROJECT_NAME@
+Description: Intel Unified HDCP SDK
+Version: @HDCP_VERSION@
+Libs: -L${libdir} -lhdcpsdk
+Cflags: -I${includedir}
