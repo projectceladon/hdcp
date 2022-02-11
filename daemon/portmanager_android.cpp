@@ -31,11 +31,17 @@
 #include "portmanager.h"
 #include "portmanager_android.h"
 
+#ifdef USES_IA_HWCOMPOSER
 #include <hwcserviceapi.h>
+#endif
+
 #include <log/log.h>
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
+
+#ifdef USES_IA_HWCOMPOSER
 #include <iservice.h>
+#endif
 
 #include "xf86drm.h"
 #include "xf86drmMode.h"
@@ -122,6 +128,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     android::ProcessState::initWithDriver("/dev/vndbinder");
 
+#ifdef USES_IA_HWCOMPOSER
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
     if (hwcs == NULL) {
@@ -138,12 +145,15 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
                 hwcs,
                 drmId);
     }
+#endif
 
     //Enable CP and SendSRM
     if (numRetry > 1)
     {
         for (uint32_t i = 0; i < numRetry; ++i)
         {
+
+#ifdef USES_IA_HWCOMPOSER
            if(propId == drmObject->GetPropertyId(CONTENT_PROTECTION))
            {
 	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable");
@@ -166,6 +176,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
                hwcs = NULL;
                ret = EINVAL;
            }
+#endif
            if(SUCCESS == ret)
            {
                // Invalid the cpValue/cpType
@@ -195,13 +206,17 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     if (SUCCESS != ret)
     {
+#ifdef USES_IA_HWCOMPOSER
         HwcService_Disconnect(hwcs);
-        HDCP_ASSERTMESSAGE("Failed to Enable HDCP");
+#endif
+	HDCP_ASSERTMESSAGE("Failed to Enable HDCP");
         HDCP_FUNCTION_EXIT(EBUSY);
         return EBUSY;
     }
 
+#ifdef USES_IA_HWCOMPOSER
     HwcService_Disconnect(hwcs);
+#endif
     HDCP_FUNCTION_EXIT(SUCCESS);
     return SUCCESS;
 } //setPortProperty_hwcservice

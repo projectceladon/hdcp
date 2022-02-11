@@ -36,11 +36,18 @@
 #include "port.h"
 
 #ifdef ANDROID
+
+#ifdef USES_IA_HWCOMPOSER
 #include <hwcserviceapi.h>
+#endif
+
 #include <log/log.h>
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
+
+#ifdef USES_IA_HWCOMPOSER
 #include <iservice.h>
+#endif
 
 #define BINDER_IPC          "/dev/vndbinder"
 #endif
