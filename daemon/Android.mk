@@ -60,7 +60,8 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libcrypto \
     libdrm \
-    libssl
+    libssl \
+    libhwcservice
 
 LOCAL_STATIC_LIBRARIES := \
     libhdcpcommon \
