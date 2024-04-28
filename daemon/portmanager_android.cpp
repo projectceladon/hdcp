@@ -78,11 +78,13 @@
                 drmObject->GetPropertyId(CONTENT_PROTECTION))
         {
             *cpValue = properties->prop_values[i];
+            HDCP_ASSERTMESSAGE("Get properties cpvalue ", *cpValue);
         }
         else if (properties->props[i] ==
                 drmObject->GetPropertyId(CP_CONTENT_TYPE))
         {
             *cpType = properties->prop_values[i];
+            HDCP_ASSERTMESSAGE("Get properties cpType ", *cpType);
         }
     }
 
@@ -110,6 +112,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
     // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
     // then set the blob id by drmModeConnectorSetProperty
 
+    HDCP_ASSERTMESSAGE("setPortProperty_hwcservice");
     int ret = EINVAL;
     uint32_t propValue;
     if (sizeof(uint8_t) != size)
@@ -156,13 +159,15 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 #ifdef USES_IA_HWCOMPOSER
            if(propId == drmObject->GetPropertyId(CONTENT_PROTECTION))
            {
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable");
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, value =%d", value);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, propValue =%d", propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
            {
                //This is only for HDCP2.2
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type 1");
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, value =%d", value);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, propValue =%d", propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_SRM))
@@ -172,6 +177,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
                    (const int8_t *)&value, size);
            } else
            {
+               HDCP_ASSERTMESSAGE("Hwc disconnect");
                HwcService_Disconnect(hwcs);
                hwcs = NULL;
                ret = EINVAL;
