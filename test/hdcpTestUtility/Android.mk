@@ -19,14 +19,14 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-LOCAL_PATH := $(call my-dir)
-
+LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-LOCAL_CPPFLAGS := \
+# For ALOGV and enter/exit log, set ENABLE_DEBUG=1 during compilation e.g. mm ENABLE_DEBUG=1 -j32
+LOCAL_CPPFLAGS += \
     -DANDROID \
     -DANDROID_VERSION=800 \
-    -DLOG_TAG=\"HDCPD\"
+    -DLOG_TAG=\"HDCPTESTUTILITY\"
 
 # LOG_CONSOLE will print ALOGI, ALOGE, ALOGW in Android. Enable on debug build
 ifeq ($(TARGET_BUILD_VARIANT),userdebug)
@@ -35,7 +35,7 @@ endif
 
 # For ALOGV and function enter/exit log, set ENABLE_DEBUG=1 during compilation e.g. mm ENABLE_DEBUG=1 -j32
 ifeq ($(ENABLE_DEBUG),1)
-LOCAL_CPPFLAG += \
+LOCAL_CPPFLAGS += \
     -DHDCP_USE_VERBOSE_LOGGING \
     -DHDCP_USE_FUNCTION_LOGGING \
     -DHDCP_USE_LINK_FUNCTION_LOGGING
@@ -54,32 +54,22 @@ LOCAL_CPPFLAGS += \
     -Wno-unused-parameter \
     -Wno-error
 
-LOCAL_SHARED_LIBRARIES := \
-    libutils \
-    libbinder \
-    liblog \
-    libcrypto \
-    libdrm \
-    libssl \
-    libhwcservice
-
-LOCAL_STATIC_LIBRARIES := \
-    libhdcpcommon \
+LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/../../sdk \
+    $(LOCAL_PATH)/../../test/hdcpTestUtility \
 
 LOCAL_SRC_FILES := \
-    main.cpp \
-    daemon.cpp \
-    port.cpp \
-    srm.cpp \
-    portmanager.cpp \
-    portmanager_android.cpp
+    hdcpTestUtility.cpp \
 
-LOCAL_C_INCLUDES := \
-    $(LOCAL_PATH) \
-    $(LOCAL_PATH)/../sdk \
-    $(LOCAL_PATH)/../common
+LOCAL_SHARED_LIBRARIES := \
+    libutils \
+    liblog \
+    libhdcpsdk \
 
-LOCAL_MODULE := hdcpd
+LOCAL_EXPORT_C_INCLUDE_DIRS = \
+    $(LOCAL_PATH)/
+
+LOCAL_MODULE := hdcpTestUtility
 LOCAL_PROPRIETARY_MODULE := true
 
-include $(BUILD_EXECUTABLE)
+include $(BUILD_SHARED_LIBRARY)
