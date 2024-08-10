@@ -1446,7 +1446,7 @@ int32_t PortManagerHWComposer::SetPortProperty(
 
     android::ProcessState::initWithDriver(BINDER_IPC);
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
     HDCP_NORMALMESSAGE("PortManagerHWComposer::SetPortProperty hwcService_Connect");
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
