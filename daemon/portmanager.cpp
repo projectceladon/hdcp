@@ -1436,7 +1436,6 @@ int32_t PortManagerHWComposer::SetPortProperty(
 
     android::ProcessState::initWithDriver(BINDER_IPC);
 
-#ifdef USES_IA_HWCOMPOSER
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
     if (nullptr == hwcs)
@@ -1483,7 +1482,6 @@ int32_t PortManagerHWComposer::SetPortProperty(
     }
 
     HwcService_Disconnect(hwcs);
-#endif
 
     if (SUCCESS != ret)
     {
