@@ -721,6 +721,7 @@ int32_t PortManager::EnablePort(
 {
     HDCP_FUNCTION_ENTER;
 
+    HDCP_NORMALMESSAGE("level %d", level);
     DrmObject *drmObject = GetDrmObjectByPortId(portId); 
     if (nullptr == drmObject ||
         DRM_MODE_DISCONNECTED == drmObject->GetConnection())
@@ -731,6 +732,7 @@ int32_t PortManager::EnablePort(
 
     bool type1Capable =
     (UINT32_MAX != drmObject->GetPropertyId(CP_CONTENT_TYPE));
+    HDCP_NORMALMESSAGE("type1Capable %d", type1Capable);
 
     if (!type1Capable)
     {
@@ -749,6 +751,7 @@ int32_t PortManager::EnablePort(
     // if level == 2, then content type == 1 means enabled,
     //                     content type == 0 means upgrade to type 1.
     uint8_t currCpType = drmObject->GetCpType();
+    HDCP_NORMALMESSAGE("currCpType %d", currCpType);
     if (CP_TYPE_INVALID != currCpType && (uint32_t)(level - 1) <= currCpType)
     {
         drmObject->AddRefAppId(appId);
@@ -767,6 +770,7 @@ int32_t PortManager::EnablePort(
             default : break;
         }
 
+        HDCP_NORMALMESSAGE("cpType %d", cpType);
         // Set CP_Content_Type property, try at most AUTH_NUM_RETRY times
         ret = SetPortProperty(
                         drmObject->GetDrmId(),
@@ -787,6 +791,7 @@ int32_t PortManager::EnablePort(
     // The port hasn't been enabled so far
     // Set Content Protection property, try at most AUTH_NUM_RETRY times
     uint8_t cpValue = CP_DESIRED;
+    HDCP_NORMALMESSAGE("cpValue %d", cpValue);
     ret = SetPortProperty(
                     drmObject->GetDrmId(),
                     drmObject->GetPropertyId(CONTENT_PROTECTION),
@@ -1417,7 +1422,10 @@ int32_t PortManagerHWComposer::SetPortProperty(
 {
     HDCP_FUNCTION_ENTER;
 
+    HDCP_NORMALMESSAGE("PortManagerHWComposer::SetPortProperty");
     int32_t ret = EINVAL;
+    uint8_t propValue = 0;
+    static uint8_t typeValue = 0;
 
     DrmObject *drmObject = GetDrmObjectByDrmId(drmId);
     if (nullptr == drmObject)
@@ -1432,11 +1440,14 @@ int32_t PortManagerHWComposer::SetPortProperty(
         return ENOENT;
     }
 
-    uint8_t propValue = *value;
+   propValue = *value;
+   if (propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
+     typeValue = *value;
 
     android::ProcessState::initWithDriver(BINDER_IPC);
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
+    HDCP_NORMALMESSAGE("PortManagerHWComposer::SetPortProperty hwcService_Connect");
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
     if (nullptr == hwcs)
@@ -1457,12 +1468,13 @@ int32_t PortManagerHWComposer::SetPortProperty(
         {
             HDCP_NORMALMESSAGE("Set content protection property (on) via HWC");
             ret = HwcService_Video_EnableHDCPSession_ForDisplay(hwcs, drmId,
-                                                (EHwcsContentType)propValue);
+                                                (EHwcsContentType)typeValue);
         }
         else if (propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
         {
             // This is only for HDCP2.2
             HDCP_NORMALMESSAGE("Set content type property via HWC");
+            HDCP_NORMALMESSAGE("Set content type property via HWC, propVlue = %d", propValue);
             ret = HwcService_Video_EnableHDCPSession_ForDisplay(hwcs, drmId,
                                                 (EHwcsContentType)propValue);
         }

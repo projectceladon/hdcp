@@ -1,0 +1,89 @@
+//
+// Copyright (c) 2009-2018, Intel Corporation
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+cc_binary {
+    name: "hdcpd",
+
+    cppflags: [
+        "-DANDROID",
+        "-DUSES_SERVICE_HWCOMPOSER",
+        "-DANDROID_VERSION=800",
+        "-DLOG_TAG=\"HDCPD\"",
+    ] + ["-DLOG_CONSOLE"] + [ // LOG_CONSOLE will print ALOGI, ALOGE, ALOGW in Android. Enable on debug build
+    // ANDROIDMK TRANSLATION ERROR: unsupported conditional
+    // ifeq ($(TARGET_BUILD_VARIANT),userdebug)
+
+        // ANDROIDMK TRANSLATION ERROR: endif from unsupported conditional
+        // endif
+
+        // For ALOGV and function enter/exit log, set ENABLE_DEBUG=1 during compilation e.g. mm ENABLE_DEBUG=1 -j32
+        // ANDROIDMK TRANSLATION ERROR: unsupported conditional
+        // ifeq ($(ENABLE_DEBUG),1)
+
+        // ANDROIDMK TRANSLATION ERROR: unsupported assignment to LOCAL_CPPFLAG
+        // LOCAL_CPPFLAG += -DHDCP_USE_VERBOSE_LOGGING      -DHDCP_USE_FUNCTION_LOGGING      -DHDCP_USE_LINK_FUNCTION_LOGGING
+
+        // ANDROIDMK TRANSLATION ERROR: endif from unsupported conditional
+        // endif
+
+        // ANDROIDMK TRANSLATION ERROR: unsupported conditional
+        // ifeq ($(ENABLE_DEBUG),1)
+
+        // ANDROIDMK TRANSLATION ERROR: unsupported assignment to LOCAL_CPPFLAG
+        // LOCAL_CPPFLAG += -DLOG_CONSOLE          -DHDCP_USE_VERBOSE_LOGGING          -DHDCP_USE_FUNCTION_LOGGING          -DHDCP_USE_LINK_FUNCTION_LOGGING
+
+        // ANDROIDMK TRANSLATION ERROR: endif from unsupported conditional
+        // endif
+
+        //WA
+        "-Wno-unused-parameter",
+        "-Wno-error",
+    ],
+
+    shared_libs: [
+        "libutils",
+        "libbinder",
+        "liblog",
+        "libcrypto",
+        "libdrm",
+        "libssl",
+        "libhwcservice",
+    ],
+
+    static_libs: ["libhdcpcommon"],
+
+    srcs: [
+        "main.cpp",
+        "daemon.cpp",
+        "port.cpp",
+        "srm.cpp",
+        "portmanager.cpp",
+        "portmanager_android.cpp",
+    ],
+
+    include_dirs: ["."] + [
+        "hardware/intel/external/media/hdcp/sdk",
+        "hardware/intel/external/media/hdcp/common",
+    ],
+
+    proprietary: true,
+
+}

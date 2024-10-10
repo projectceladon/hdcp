@@ -31,7 +31,7 @@
 #include "portmanager.h"
 #include "portmanager_android.h"
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
 #include <hwcserviceapi.h>
 #endif
 
@@ -39,7 +39,7 @@
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
 #include <iservice.h>
 #endif
 
@@ -78,11 +78,13 @@
                 drmObject->GetPropertyId(CONTENT_PROTECTION))
         {
             *cpValue = properties->prop_values[i];
+            HDCP_ASSERTMESSAGE("Get properties cpvalue %d", *cpValue);
         }
         else if (properties->props[i] ==
                 drmObject->GetPropertyId(CP_CONTENT_TYPE))
         {
             *cpType = properties->prop_values[i];
+            HDCP_ASSERTMESSAGE("Get properties cpType %d", *cpType);
         }
     }
 
@@ -110,6 +112,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
     // If the size isn't sizeof(uint8_t), it means SRM data, need create blob
     // then set the blob id by drmModeConnectorSetProperty
 
+    HDCP_ASSERTMESSAGE("setPortProperty_hwcservice");
     int ret = EINVAL;
     uint32_t propValue;
     if (sizeof(uint8_t) != size)
@@ -128,7 +131,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     android::ProcessState::initWithDriver("/dev/vndbinder");
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
     if (hwcs == NULL) {
@@ -153,16 +156,18 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
         for (uint32_t i = 0; i < numRetry; ++i)
         {
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
            if(propId == drmObject->GetPropertyId(CONTENT_PROTECTION))
            {
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable");
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, value =%d", value);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, propValue =%d", propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
            {
                //This is only for HDCP2.2
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type 1");
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, value =%d", value);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, propValue =%d", propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_SRM))
@@ -172,6 +177,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
                    (const int8_t *)&value, size);
            } else
            {
+               HDCP_ASSERTMESSAGE("Hwc disconnect");
                HwcService_Disconnect(hwcs);
                hwcs = NULL;
                ret = EINVAL;
@@ -206,7 +212,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     if (SUCCESS != ret)
     {
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
         HwcService_Disconnect(hwcs);
 #endif
 	HDCP_ASSERTMESSAGE("Failed to Enable HDCP");
@@ -214,7 +220,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
         return EBUSY;
     }
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
     HwcService_Disconnect(hwcs);
 #endif
     HDCP_FUNCTION_EXIT(SUCCESS);

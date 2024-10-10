@@ -37,7 +37,7 @@
 
 #ifdef ANDROID
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
 #include <hwcserviceapi.h>
 #endif
 
@@ -45,7 +45,7 @@
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_SERVICE_HWCOMPOSER
 #include <iservice.h>
 #endif
 
