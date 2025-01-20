@@ -494,11 +494,14 @@ PortManager::PortManager(HdcpDaemon& daemonSocket) :
     // Set default state
     m_IsValid = false;
 
-    m_DrmFd = drmOpen("i915", nullptr);
+    m_DrmFd = drmOpen("virtio_gpu", nullptr);
     if (m_DrmFd < 0)
     {
-        HDCP_ASSERTMESSAGE("Failed to open i915 device!");
-        return;
+        m_DrmFd = drmOpen("i915", nullptr);
+        if (m_DrmFd < 0) {
+            HDCP_ASSERTMESSAGE("Failed to open i915 device!");
+            return;
+	}
     }
     
     if (SUCCESS != InitDrmObjects())
