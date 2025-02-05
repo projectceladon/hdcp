@@ -37,6 +37,7 @@
 #include "socketdata.h"
 
 #define APP_ID_INTERNAL     0
+#define HDCP_SRM            0
 
 #ifdef ANDROID
 #define HDCP_PIDFILE    "/data/hdcp/hdcpd.pid"

@@ -178,7 +178,7 @@ void HdcpDaemon::DispatchCommand(
                 sendResponse = false;
             }
             break;
-
+#if HDCP_SRM
         case HDCP_API_SENDSRMDATA:
             HDCP_NORMALMESSAGE("Daemon received 'SendSrmData' request");
             SendSRMData(data, appId);
@@ -188,7 +188,7 @@ void HdcpDaemon::DispatchCommand(
             HDCP_NORMALMESSAGE("Daemon received 'GetSrmVersion' request");
             GetSRMVersion(data);
             break;
-
+#endif
         case HDCP_API_CONFIG:
             HDCP_NORMALMESSAGE("Daemon received 'Config' request");
             Config(data);
@@ -500,6 +500,7 @@ void HdcpDaemon::GetKsvList(SocketData& data, uint32_t appId)
     HDCP_FUNCTION_EXIT(SUCCESS);
 }
 
+#if HDCP_SRM
 void HdcpDaemon::SendSRMData(SocketData& data, uint32_t appId)
 {
     HDCP_FUNCTION_ENTER;
@@ -590,18 +591,19 @@ void HdcpDaemon::GetSRMVersion(SocketData& data)
 
     HDCP_FUNCTION_EXIT(SUCCESS);
 }
+#endif
 
 void HdcpDaemon::Config(SocketData& data)
 {
     HDCP_FUNCTION_ENTER;
-
+#if HDCP_SRM
     int32_t sts = SrmConfig(data.Config.disableSrmStorage);
     if (SUCCESS != sts)
     {
         data.Status = HDCP_STATUS_ERROR_INTERNAL;
         return;
     }
-
+#endif
     data.Status = HDCP_STATUS_SUCCESSFUL;
 
     HDCP_FUNCTION_EXIT(SUCCESS);
