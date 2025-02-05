@@ -156,6 +156,7 @@ int32_t InitializeWithMinimalPrivileges()
     int32_t     ret = 1;
     HdcpDaemon  daemon;
 
+#if HDCP_SRM
     ret = SrmInit();
     if (SUCCESS != ret)
     {
@@ -163,7 +164,7 @@ int32_t InitializeWithMinimalPrivileges()
         HDCP_ASSERTMESSAGE("SrmInit failed, destroying the daemon.");
         goto out;
     }
-
+#endif
     ret = PortManagerInit(daemon);
     if (SUCCESS != ret)
     {
@@ -193,7 +194,9 @@ int32_t InitializeWithMinimalPrivileges()
 
 out:
     PortManagerRelease();
+#if HDCP_SRM
     SrmRelease();
+#endif
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
