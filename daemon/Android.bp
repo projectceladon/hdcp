@@ -24,7 +24,7 @@ cc_binary {
 
     cppflags: [
         "-DANDROID",
-        "-DUSES_IA_HWCOMPOSER",
+        "-DUSES_HDCP_HWCOMPOSER",
         "-DANDROID_VERSION=800",
         "-DLOG_TAG=\"HDCPD\"",
     ] + ["-DLOG_CONSOLE"] + [ // LOG_CONSOLE will print ALOGI, ALOGE, ALOGW in Android. Enable on debug build
