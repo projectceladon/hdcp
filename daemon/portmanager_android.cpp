@@ -31,7 +31,7 @@
 #include "portmanager.h"
 #include "portmanager_android.h"
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
 #include <hwcserviceapi.h>
 #endif
 
@@ -39,7 +39,7 @@
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
 #include <iservice.h>
 #endif
 
@@ -131,7 +131,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     android::ProcessState::initWithDriver("/dev/vndbinder");
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
     // Connect to HWC service
     HWCSHANDLE hwcs = HwcService_Connect();
     if (hwcs == NULL) {
@@ -156,18 +156,16 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
         for (uint32_t i = 0; i < numRetry; ++i)
         {
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
            if(propId == drmObject->GetPropertyId(CONTENT_PROTECTION))
            {
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, value =%d", value);
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, propValue =%d", propValue);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, value =%d, propValue =%d", value, propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_CONTENT_TYPE))
            {
                //This is only for HDCP2.2
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, value =%d", value);
-	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable Type, propValue =%d", propValue);
+	       HDCP_ASSERTMESSAGE("Attempting HDCP Enable, value =%d, propValue =%d", value, propValue);
                ret = HwcService_Video_EnableHDCPSession_ForDisplay(
                    hwcs, drmId, (EHwcsContentType)propValue);
            } else if(propId == drmObject->GetPropertyId(CP_SRM))
@@ -212,7 +210,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
 
     if (SUCCESS != ret)
     {
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
         HwcService_Disconnect(hwcs);
 #endif
 	HDCP_ASSERTMESSAGE("Failed to Enable HDCP");
@@ -220,7 +218,7 @@ int32_t setPortProperty_hwcservice(int32_t m_DrmFd,
         return EBUSY;
     }
 
-#ifdef USES_IA_HWCOMPOSER
+#ifdef USES_HDCP_HWCOMPOSER
     HwcService_Disconnect(hwcs);
 #endif
     HDCP_FUNCTION_EXIT(SUCCESS);
