@@ -91,7 +91,7 @@ int32_t LocalServerSocket::GetRequest(SocketData& req, const int32_t fd)
 {
     HDCP_FUNCTION_ENTER;
 
-    int32_t ret = ReadData(fd, &req.Bytes, sizeof(req));
+    int32_t ret = ReadData(fd, &req.Bytes, sizeof(req.Bytes));
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
@@ -101,7 +101,7 @@ int32_t LocalServerSocket::SendResponse(const SocketData& rsp, const int32_t fd)
 {
     HDCP_FUNCTION_ENTER;
 
-    int32_t ret = WriteData(fd, &rsp.Bytes, sizeof(rsp));
+    int32_t ret = WriteData(fd, &rsp.Bytes, sizeof(rsp.Bytes));
 
     HDCP_FUNCTION_EXIT(ret);
     return ret;
